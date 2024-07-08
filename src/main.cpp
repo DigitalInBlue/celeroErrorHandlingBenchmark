@@ -8,23 +8,14 @@
 // Define the number of samples and iterations for benchmarking
 CELERO_MAIN
 
-// Function prototypes for different error handling techniques
-bool baselineFunction(bool);
-void exceptionFunction(bool);
-std::expected<void, std::string> expectedFunction(bool);
-int errorCodeFunction(bool);
-std::optional<std::monostate> optionalFunction(bool);
-std::variant<std::monostate, std::string> variantFunction(bool);
-void errorCallbackFunction(bool, void (*)(const std::string&));
-
 // Baseline function: Returns true or false
-bool baselineFunction(bool success)
+bool BaselineFunction(bool success)
 {
 	return success;
 }
 
 // Exception-based function
-void exceptionFunction(bool success)
+void ExceptionFunction(bool success)
 {
 	if(!success)
 	{
@@ -33,7 +24,7 @@ void exceptionFunction(bool success)
 }
 
 // Expected-based function (using std::expected from C++23)
-std::expected<void, std::string> expectedFunction(bool success)
+std::expected<void, std::string> ExpectedFunction(bool success)
 {
 	if(!success)
 	{
@@ -43,19 +34,19 @@ std::expected<void, std::string> expectedFunction(bool success)
 }
 
 // Error code function
-enum ErrorCode
+enum class ErrorCode
 {
 	SUCCESS = 0,
 	ERROR = 1
 };
 
-int errorCodeFunction(bool success)
+ErrorCode ErrorCodeFunction(bool success)
 {
-	return success ? SUCCESS : ERROR;
+	return success ? ErrorCode::SUCCESS : ErrorCode::ERROR;
 }
 
 // Optional-based function using std::monostate
-std::optional<std::monostate> optionalFunction(bool success)
+std::optional<std::monostate> OptionalFunction(bool success)
 {
 	if(!success)
 	{
@@ -65,7 +56,7 @@ std::optional<std::monostate> optionalFunction(bool success)
 }
 
 // Variant-based function
-std::variant<std::monostate, std::string> variantFunction(bool success)
+std::variant<std::monostate, std::string> VariantFunction(bool success)
 {
 	if(!success)
 	{
@@ -75,7 +66,7 @@ std::variant<std::monostate, std::string> variantFunction(bool success)
 }
 
 // Error callback function
-void errorCallbackFunction(bool success, void (*callback)(const std::string&))
+void ErrorCallbackFunction(bool success, void (*callback)(const std::string&))
 {
 	if(!success)
 	{
@@ -84,7 +75,7 @@ void errorCallbackFunction(bool success, void (*callback)(const std::string&))
 }
 
 // Callback for error reporting
-void errorCallback(const std::string& message)
+void ErrorCallback(const std::string& message)
 {
 	// Handle error
 }
@@ -92,54 +83,54 @@ void errorCallback(const std::string& message)
 // Baseline Benchmark
 BASELINE(ErrorHandling, Baseline, 100, 10000000)
 {
-	celero::DoNotOptimizeAway(baselineFunction(true));
-	celero::DoNotOptimizeAway(baselineFunction(false));
+	celero::DoNotOptimizeAway(BaselineFunction(true));
+	celero::DoNotOptimizeAway(BaselineFunction(false));
 }
 
 // Expected Benchmark
 BENCHMARK(ErrorHandling, Expected, 50, 10000000)
 {
-	auto result = expectedFunction(true);
+	auto result = ExpectedFunction(true);
 	celero::DoNotOptimizeAway(result.has_value());
 
-	result = expectedFunction(false);
+	result = ExpectedFunction(false);
 	celero::DoNotOptimizeAway(result.has_value());
 }
 
 // Error Code Benchmark
 BENCHMARK(ErrorHandling, ErrorCode, 50, 10000000)
 {
-	celero::DoNotOptimizeAway(errorCodeFunction(true) == SUCCESS);
-	celero::DoNotOptimizeAway(errorCodeFunction(false) == SUCCESS);
+	celero::DoNotOptimizeAway(ErrorCodeFunction(true) == ErrorCode::SUCCESS);
+	celero::DoNotOptimizeAway(ErrorCodeFunction(false) == ErrorCode::SUCCESS);
 }
 
 // Optional Benchmark
 BENCHMARK(ErrorHandling, Optional, 50, 10000000)
 {
-	auto result = optionalFunction(true);
+	auto result = OptionalFunction(true);
 	celero::DoNotOptimizeAway(result.has_value());
 
-	result = optionalFunction(false);
+	result = OptionalFunction(false);
 	celero::DoNotOptimizeAway(result.has_value());
 }
 
 // Variant Benchmark
 BENCHMARK(ErrorHandling, Variant, 50, 10000000)
 {
-	auto result = variantFunction(true);
+	auto result = VariantFunction(true);
 	celero::DoNotOptimizeAway(std::holds_alternative<std::monostate>(result));
 
-	result = variantFunction(false);
+	result = VariantFunction(false);
 	celero::DoNotOptimizeAway(std::holds_alternative<std::monostate>(result));
 }
 
 // Error Callback Benchmark
 BENCHMARK(ErrorHandling, ErrorCallback, 50, 10000000)
 {
-	errorCallbackFunction(true, errorCallback);
+	ErrorCallbackFunction(true, ErrorCallback);
 	celero::DoNotOptimizeAway(true);
 
-	errorCallbackFunction(false, errorCallback);
+	ErrorCallbackFunction(false, ErrorCallback);
 	celero::DoNotOptimizeAway(false);
 }
 
@@ -148,7 +139,7 @@ BENCHMARK(ErrorHandling, Exception, 10, 5000)
 {
 	try
 	{
-		exceptionFunction(true);
+		ExceptionFunction(true);
 		celero::DoNotOptimizeAway(true);
 	}
 	catch(...)
@@ -158,7 +149,7 @@ BENCHMARK(ErrorHandling, Exception, 10, 5000)
 
 	try
 	{
-		exceptionFunction(false);
+		ExceptionFunction(false);
 		celero::DoNotOptimizeAway(true);
 	}
 	catch(...)
