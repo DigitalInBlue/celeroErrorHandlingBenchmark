@@ -1,0 +1,7 @@
+{
+  "name": "celeroerrorhandlingbenchmark",
+  "version": "1.0",
+  "dependencies": [
+    "celero"
+  ]
+}
